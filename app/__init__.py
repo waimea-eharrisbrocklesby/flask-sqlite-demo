@@ -27,6 +27,43 @@ app = Flask(__name__)
 def show_welcome():
     return render_template("pages/welcome.jinja")
 
+#-----------------------------------------------------------
+# New creature form
+#-----------------------------------------------------------
+@app.get("/creatures/new")
+def show_new_creature_form():
+    return render_template("pages/creature_form.jinja")
+
+
+#-----------------------------------------------------------
+# New creature post handler
+#-----------------------------------------------------------
+@app.post("/creatures/new")
+def process_new_creature_form():
+
+    #get data from form
+    species = request.form.get("species", "unknown").strip()
+    name = request.form.get("name", "unknown").strip()
+
+    #connect to db
+    with connect_db() as db:
+        sql = """
+            INSERT INTO creatures (species, name)
+            VALUES (?, ?)
+        """
+
+        params = (
+            species,
+            name
+        )
+
+        #run the query
+        db.execute(sql, params)
+
+        flash(f"Creature {name} added successfully!", "success")
+
+        #done so back to listy
+        return redirect("/creatures")
 
 #-----------------------------------------------------------
 # Creature list page - Show all the creatures
@@ -42,6 +79,26 @@ def show_all_creatures():
         creatures = db.execute(sql, params).fetchall()
 
         return render_template("pages/creature_list.jinja", creatures=creatures)
+
+
+#-----------------------------------------------------------
+# Creature delete handler - Delete a creature
+#-----------------------------------------------------------
+@app.get("/creatures/<int:id>/delete")
+def delete_a_creature(id):
+    with connect_db() as db:
+        #delete the creature using id
+        sql = """
+            DELETE FROM creatures
+            WHERE id = ?
+        """
+        params = (id,)
+        db.execute(sql, params)
+
+        #done so back to list
+        flash("Creature deleted successfully!", "success")
+        return redirect("/creatures")
+        
 
 
 #-----------------------------------------------------------

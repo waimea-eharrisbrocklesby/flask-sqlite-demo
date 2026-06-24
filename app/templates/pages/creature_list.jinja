@@ -16,13 +16,14 @@
             <div class="creature">
                 <h3>{{ creature.name }}</h3>
                 <p>Species: <strong>{{ creature.species }}</strong></p>
+                <p><a href="/creatures/{{ creature.id }}/delete">delete</a></p>
             </div>
 
         {% else %}
 
             <p>No Creatures!</p>
 
-        {% endfor %}
+        {% endfor %}    
 
     </section>
 
